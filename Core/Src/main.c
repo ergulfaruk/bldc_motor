@@ -18,6 +18,7 @@
   */
   //
 /* USER CODE END Header */
+//zamazingo
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
