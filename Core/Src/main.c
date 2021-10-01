@@ -18,7 +18,7 @@
   */
   //
 /* USER CODE END Header */
-//zamazingo rotototototosasdkaksdk
+//zamazingo rotototototo
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
