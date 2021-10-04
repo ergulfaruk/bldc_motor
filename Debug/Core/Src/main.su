@@ -1,6 +1,6 @@
-main.c:67:5:main	16	static
-main.c:113:9:motor_drive	24	static
-main.c:196:6:SystemClock_Config	88	static
-main.c:236:13:MX_TIM1_Init	96	static
-main.c:319:13:MX_GPIO_Init	48	static
-main.c:355:6:Error_Handler	4	static,ignoring_inline_asm
+main.c:70:5:main	16	static
+main.c:130:6:SystemClock_Config	88	static
+main.c:170:13:MX_TIM1_Init	96	static
+main.c:253:13:MX_UART4_Init	40	static
+main.c:295:13:MX_GPIO_Init	48	static
+main.c:332:6:Error_Handler	4	static,ignoring_inline_asm

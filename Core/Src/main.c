@@ -18,10 +18,9 @@
   */
   //
 /* USER CODE END Header */
-//zamazingo rotototototo
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include "motor.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -44,15 +43,17 @@
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim1;
 
+UART_HandleTypeDef huart4;
+UART_HandleTypeDef UART_Handler; /*Create UART_HandleTypeDef struct instance */
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-uint8_t motor_drive(uint8_t);
 static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_UART4_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -91,6 +92,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM1_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -99,97 +101,27 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_SET);
   //HAL_TIM_Base_Start(&htim1);
-  TIM1->CCR1 = 30000;
-  TIM1->CCR2 = 30000;
-  TIM1->CCR3 = 30000;
+  TIM1->CCR1 = 15000;
+  TIM1->CCR2 = 15000;
+  TIM1->CCR3 = 15000;
   uint8_t state = 0;
+
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
   while (1)
   {
     /* USER CODE END WHILE */
+	  //state = GPIOC -> IDR & 7;
+	  //char ch = state + 0x30;
+	  //HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
+	  //HAL_Delay(100);
 	  state = motor_drive(state);
-
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }
-uint8_t motor_drive(uint8_t ex_state){
-
-	uint8_t state;
-
-	state = (GPIOC->IDR) & 7;
-	// TIM1 CH 1  PWM 1 // PE9
-	// TIM1 CH 1N PWM 2 // PA7
-	// TIM1 CH 2  PWM 3 // PE11
-	// TIM1 CH 2N PWM 4 // PB0
-	// TIM1 CH 3  PWM 5 // PE13
-	// TIM1 CH 3N PWM 6 // PB1
-	if(state != ex_state){
-
-		switch(state){
-
-			case 1:
-				//PWM 1 VE PWM 4 AÇILCAK GERİSİ KAPALI
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM1
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1); // PWM2
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2); // PWM3
-				HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2); // PWM4
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3); //PWM5
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3); //PWM6
-				break;
-			case 5:
-				//PWM 1 VE PWM 6 AÇILCAK GERİSİ KAPALI
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM1
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1); // PWM2
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2); // PWM3
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2); // PWM4
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3); //PWM5
-				HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3); //PWM6
-				break;
-			case 4:
-				//PWM 3 VE PWM 6 AÇILCAK GERİSİ KAPALI
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1); // PWM1
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1); // PWM2
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); // PWM3
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2); // PWM4
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3); //PWM5
-				HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3); //PWM6
-				break;
-			case 6:
-				//PWM 3 VE PWM 2 AÇILCAK GERİSİ KAPALI
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1); // PWM1
-				HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1); // PWM2
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); // PWM3
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2); // PWM4
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3); //PWM5
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3); //PWM6
-				break;
-			case 2:
-				//PWM 2 VE PWM 5 AÇILCAK GERİSİ KAPALI
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1); // PWM1
-				HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1); // PWM2
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2); // PWM3
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2); // PWM4
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3); //PWM5
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3); //PWM6
-				break;
-			case 3:
-				//PWM 4 VE PWM 5 AÇILCAK GERİSİ KAPALI
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1); // PWM1
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1); // PWM2
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2); // PWM3
-				HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2); // PWM4
-				HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3); //PWM5
-				HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3); //PWM6
-				break;
-			default:
-				break;
-				}
-
-	}
-		return state;
-
-	}
-
 
 /**
   * @brief System Clock Configuration
@@ -234,8 +166,6 @@ void SystemClock_Config(void)
   * @brief TIM1 Initialization Function
   * @param None
   * @retval None
-  
-  //ekoekomeisterr
   */
 static void MX_TIM1_Init(void)
 {
@@ -255,7 +185,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65353;
+  htim1.Init.Period = 30000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV4;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -316,6 +246,48 @@ static void MX_TIM1_Init(void)
 }
 
 /**
+  * @brief UART4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_UART4_Init(void)
+{
+
+  /* USER CODE BEGIN UART4_Init 0 */
+
+  /* USER CODE END UART4_Init 0 */
+
+  /* USER CODE BEGIN UART4_Init 1 */
+	__HAL_RCC_GPIOA_CLK_ENABLE(); /* Enable clock to PORTA - UART2 pins PA2 and PA3 */
+	__HAL_RCC_UART4_CLK_ENABLE(); /* Enable clock to UART2 module */
+
+	GPIO_InitTypeDef UART4_GPIO_Handler; /*Create GPIO_InitTypeDef struct instance */
+	UART4_GPIO_Handler.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+	UART4_GPIO_Handler.Mode = GPIO_MODE_AF_PP;
+	UART4_GPIO_Handler.Pull = GPIO_PULLUP;
+	UART4_GPIO_Handler.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	UART4_GPIO_Handler.Alternate = GPIO_AF8_UART4;
+	HAL_GPIO_Init(GPIOA, &UART4_GPIO_Handler);
+  /* USER CODE END UART4_Init 1 */
+  huart4.Instance = UART4;
+  huart4.Init.BaudRate = 115200;
+  huart4.Init.WordLength = UART_WORDLENGTH_8B;
+  huart4.Init.StopBits = UART_STOPBITS_1;
+  huart4.Init.Parity = UART_PARITY_NONE;
+  huart4.Init.Mode = UART_MODE_TX_RX;
+  huart4.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart4.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN UART4_Init 2 */
+
+  /* USER CODE END UART4_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -331,20 +303,21 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOE_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_3, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_11|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PC0 PC1 PC2 */
   GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PC3 */
-  GPIO_InitStruct.Pin = GPIO_PIN_3;
+  /*Configure GPIO pins : PB11 PB13 PB14 PB15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 
