@@ -77,7 +77,7 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
-  // deneme commit
+  // deneme commit asdlasldlasdlalsd
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
