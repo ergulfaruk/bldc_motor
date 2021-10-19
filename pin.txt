@@ -1,0 +1,33 @@
+STM32'den DRV8302'ye
+	*PWM Outputs
+		PE9  -> INHA 
+		PA7  -> INLA
+		PE11 -> INHB
+		PB0  -> INLB
+		PE13 -> INHC
+		PB1  -> INLC
+	*DRV8302'nin çalışması için gerekli pinler
+		PB11 -> OC ADJ
+		PB13 -> EN-GATE
+		PB14 -> M OC
+		PB15 -> M PWM
+
+STM32'den Motorun ince kablolarına
+	*Hall Sensor Inputs
+		PC0  -> HALLA (ince yeşil)
+		PC1  -> HALLB (ince sarı)
+		PC2  -> HALLC (ince mavi)
+		5V   -> (ince kırmızı)
+		GND  -> (ince siyah)
+
+Power Supply'dan DRV8302'ye
+	*24V girişleri
+		V+   -> Vin
+		V-   -> GND
+
+Motordan DRV8302'ye
+	*Faz kabloları
+		KALIN YEŞİL -> OUT A
+		KALIN SARI  -> OUT B
+		KALIN MAVİ  -> OUT C 
+ 
