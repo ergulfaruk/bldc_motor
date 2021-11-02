@@ -5,11 +5,43 @@
 TIM_HandleTypeDef htim1;
 UART_HandleTypeDef huart4;
 
+uint8_t motor_start_stop(uint8_t power){
+
+	uint8_t button_read = (GPIOC -> IDR >> 3) & 1;
+
+	if(button_read == 1){
+		power = power ^ 1 ;
+		power = power & 1;
+	}
+
+	if(button_read == 1 && power == 1){
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1); // PWM1
+		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1); // PWM2
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2); // PWM1
+		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2); // PWM2
+		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3); // PWM1
+		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3); // PWM2
+	}
+	else if(button_read == 1 && power == 0){
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1); // PWM1
+		HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1); // PWM2
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2); // PWM1
+		HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2); // PWM2
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3); // PWM1
+		HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3); // PWM2
+	}
+
+	return power;
+
+}
 
 
-uint8_t motor_drive(uint8_t ex_state) {
+uint8_t motor_drive(uint8_t ex_state, int speed) {
 
   uint8_t state;
+  TIM1 -> ARR = speed;
+  int duty = speed/10;
+
 
   state = (GPIOC -> IDR) & 7;
   // TIM1 CH 1  PWM 1 // PE9
@@ -43,7 +75,7 @@ uint8_t motor_drive(uint8_t ex_state) {
       //CH3 and CH3N PWM mode
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_3);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_3);
-      TIM1 -> CCR3 = 399;
+      TIM1 -> CCR3 = duty;
 
       break;
     case 3:
@@ -56,7 +88,7 @@ uint8_t motor_drive(uint8_t ex_state) {
       //CH1 and CH1N PWM mode
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_1);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_1);
-      TIM1 -> CCR1 = 399;
+      TIM1 -> CCR1 = duty;
 
       //CH2 CH2N closed
       HAL_TIM_PWM_Stop( & htim1, TIM_CHANNEL_2);
@@ -78,7 +110,7 @@ uint8_t motor_drive(uint8_t ex_state) {
       //CH1 and CH1N PWM mode
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_1);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_1);
-      TIM1 -> CCR1 = 399;
+      TIM1 -> CCR1 = duty;
 
       //CH3 CH3N closed
       HAL_TIM_PWM_Stop( & htim1, TIM_CHANNEL_3);
@@ -106,7 +138,7 @@ uint8_t motor_drive(uint8_t ex_state) {
       //CH2 and CH2N PWM mode
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_2);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_2);
-      TIM1 -> CCR2 = 399;
+      TIM1 -> CCR2 = duty;
 
       //CH3 CH3N closed
       HAL_TIM_PWM_Stop( & htim1, TIM_CHANNEL_3);
@@ -128,7 +160,7 @@ uint8_t motor_drive(uint8_t ex_state) {
       //CH3 and CH3N PWM mode
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_3);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_3);
-      TIM1 -> CCR3 = 399;
+      TIM1 -> CCR3 = duty;
 
       //CH2 CH2N closed
       HAL_TIM_PWM_Stop( & htim1, TIM_CHANNEL_2);
@@ -149,7 +181,7 @@ uint8_t motor_drive(uint8_t ex_state) {
       //CH2 CH2N Pwm mode
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_2);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_2);
-      TIM1 -> CCR2 = 399;
+      TIM1 -> CCR2 = duty;
       //CH3 forced to zero CH3N forced to one
       HAL_TIM_PWM_Start( & htim1, TIM_CHANNEL_3);
       HAL_TIMEx_PWMN_Start( & htim1, TIM_CHANNEL_3);
