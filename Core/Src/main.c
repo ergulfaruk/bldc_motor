@@ -103,7 +103,7 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 
-//HAL_TIM_Base_Start(&htim1);
+
 	uint8_t state = 0;
 
 //m oc pb14
@@ -117,105 +117,57 @@ int main(void) {
 
 	uint8_t power = 0;
 	state = GPIOC->IDR & 7;
-//char ch = state + 0x30;
-//HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-//HAL_Delay(100);
-//state = motor_drive(state);
+
 
 	int yon = 0;
-	int sayac = 0;
 
-	/*
-	 power = motor_start_stop(power);
 
-	 state = motor_drive(ex_state,SPEED);
 
-	 if(ex_state != state){
-	 counter_diff = TIM2 -> CNT - counter_begin;
-	 counter_begin = TIM2 -> CNT;
-	 rpm = 180000000/counter_diff;
-	 rpm = counter_diff;
-	 ch = rpm;
-	 HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-	 ch = ch >> 8;
-	 HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-	 ch = ch >> 8;
-	 HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-	 ch = ch >> 8;
-	 HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-	 ex_state = state;
-	 }
-	 /*sayac++;
-	 if(sayac == 1000000){
-	 if(yon == 0){
-	 SPEED = SPEED + 100;
-
-	 if(SPEED > 5000){
-	 yon = 1;
-	 }
-	 }
-	 else if(yon == 1){
-	 SPEED = SPEED - 100;
-
-	 if(SPEED < 300){
-	 yon = 0;
-	 }
-	 }
-
-	 //ch = SPEED/100;
-	 //HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-	 sayac = 0;
-
-	 }
-	 */
 	char ch;
 	int rpm_counter = 0;
 	uint8_t ex_state = 0;
 	int rpm;
+	SPEED = 10000;
+	float duty = 5;
 	int minute_count = 0;
 	while (1) {
 		/* USER CODE END WHILE */
 		power = motor_start_stop(power);
 
-		state = motor_drive(ex_state, SPEED);
+		state = motor_drive(ex_state, SPEED, duty);
 
 		if (ex_state != state) {
 			rpm_counter++;
 			ex_state = state;
 		}
 
-		if (TIM2->CNT == 18000-1) {
-			if(minute_count < 600)
+		if (TIM2->CNT == 18000 - 1) {
+			if (minute_count < 6)
 				minute_count++;
 			else {
-				rpm = rpm_counter*6/6;
+				rpm = rpm_counter * 6 / 6;
 				rpm_counter = 0;
 				minute_count = 0;
+
+				if (yon == 0) {
+					duty = duty + 0.2;
+
+					if (duty > 50) {
+						yon = 1;
+					}
+				} else if (yon == 1) {
+					duty = duty - 0.2;
+
+					if (duty < 1.6) {
+						yon = 0;
+					}
+				}
+
+
+
+
 			}
 		}
-		/*sayac++;
-		 if(sayac == 1000000){
-		 if(yon == 0){
-		 SPEED = SPEED + 100;
-
-		 if(SPEED > 5000){
-		 yon = 1;
-		 }
-		 }
-		 else if(yon == 1){
-		 SPEED = SPEED - 100;
-
-		 if(SPEED < 300){
-		 yon = 0;
-		 }
-		 }
-
-		 //ch = SPEED/100;
-		 //HAL_UART_Transmit(&huart4,(uint8_t *)&ch, 1, 0xFFFF);
-		 sayac = 0;
-
-		 }
-		 */
 		/* USER CODE BEGIN 3 */
 	}
 	/* USER CODE END 3 */
@@ -445,8 +397,7 @@ static void MX_GPIO_Init(void) {
 
 	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(GPIOB,
-			GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15,
-			GPIO_PIN_RESET);
+	GPIO_PIN_11 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15, GPIO_PIN_RESET);
 
 	/*Configure GPIO pins : PC0 PC1 PC2 */
 	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2;

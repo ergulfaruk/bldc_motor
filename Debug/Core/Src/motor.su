@@ -1,2 +1,2 @@
 motor.c:8:9:motor_start_stop	24	static
-motor.c:39:9:motor_drive	24	static
+motor.c:37:9:motor_drive	32	static
